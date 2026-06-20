@@ -8,9 +8,6 @@
     <!-- SF Pro Font -->
     <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/sf-pro-display" />
 
-    <!-- Puter.js - Free AI API (GPT-4o, Claude, Gemini, etc.) -->
-    <script src="https://js.puter.com/v2/"></script>
-
     <style>
         /* ============================================================
            RESET & BASE
@@ -52,7 +49,6 @@
             overflow: hidden;
         }
 
-        /* 3D Liquid Glass Orb - Main */
         .orb {
             position: absolute;
             border-radius: 50%;
@@ -138,7 +134,6 @@
                 0 0 150px rgba(0, 122, 255, 0.06);
         }
 
-        /* 3D Liquid Glass Shine / Reflection */
         .container::before {
             content: '';
             position: absolute;
@@ -163,7 +158,6 @@
             padding: 2px;
         }
 
-        /* Liquid Glass - Top Bevel Highlight */
         .container::after {
             content: '';
             position: absolute;
@@ -232,12 +226,77 @@
         }
 
         /* ============================================================
+           API KEY INPUT - GLASS STYLE
+           ============================================================ */
+        .api-key-section {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .api-key-section label {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .api-key-section input {
+            flex: 1;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'SF Pro Display', sans-serif;
+            font-size: 13px;
+            outline: none;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .api-key-section input::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .api-key-section input:focus {
+            border-color: rgba(0, 122, 255, 0.2);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .api-key-section .status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .api-key-section .status.active {
+            color: #4ade80;
+            border-color: rgba(74, 222, 128, 0.2);
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        /* ============================================================
            CHAT CONTAINER
            ============================================================ */
         .chat-container {
             position: relative;
             z-index: 1;
-            max-height: 460px;
+            max-height: 420px;
             overflow-y: auto;
             margin-bottom: 20px;
             padding-right: 6px;
@@ -291,7 +350,6 @@
             }
         }
 
-        /* User Message - 3D Glass */
         .message.user {
             background: rgba(0, 122, 255, 0.10);
             backdrop-filter: blur(24px) saturate(1.6);
@@ -318,7 +376,6 @@
             opacity: 0.3;
         }
 
-        /* AI Message - 3D Glass */
         .message.ai {
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(24px) saturate(1.6);
@@ -532,8 +589,8 @@
            ============================================================ */
         @media (max-width: 640px) {
             .container {
-                padding: 24px;
-                border-radius: 32px;
+                padding: 20px;
+                border-radius: 28px;
                 transform: none !important;
             }
             .container:hover {
@@ -541,7 +598,7 @@
             }
 
             .logo {
-                font-size: 36px;
+                font-size: 32px;
             }
 
             .input-area {
@@ -573,6 +630,18 @@
                 width: 200px;
                 height: 200px;
             }
+
+            .api-key-section {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+            }
+            .api-key-section label {
+                margin-bottom: 4px;
+            }
+            .api-key-section .status {
+                align-self: flex-start;
+            }
         }
     </style>
 </head>
@@ -598,7 +667,19 @@
                 tr<span>AI</span>lblazer
                 <div class="logo-glow"></div>
             </div>
-            <div class="subtitle">Your AI Assistant · Powered by GPT-4o</div>
+            <div class="subtitle">Your AI Assistant · Powered by DeepSeek</div>
+        </div>
+
+        <!-- API KEY INPUT -->
+        <div class="api-key-section">
+            <label>🔑 API Key:</label>
+            <input 
+                type="password" 
+                id="apiKeyInput" 
+                placeholder="Enter your DeepSeek API key..."
+                autocomplete="off"
+            />
+            <span class="status" id="apiStatus">⚠️ Not set</span>
         </div>
 
         <!-- CHAT -->
@@ -608,9 +689,9 @@
                 <div class="sender">trAIlblazer</div>
                 <div class="content">
                     <strong>👋 Hello! I'm trAIlblazer.</strong><br /><br />
-                    I'm an AI assistant that can help you with anything.<br />
-                    Ask me about science, history, technology, art, philosophy, or whatever you're curious about!<br /><br />
-                    <em>I use GPT-4o to give you thoughtful, human-like responses.</em>
+                    I'm an AI assistant powered by DeepSeek.<br />
+                    Ask me about anything — science, history, technology, art, philosophy, or whatever you're curious about!<br /><br />
+                    <em>💡 Enter your DeepSeek API key above to get started. Get one at <strong>platform.deepseek.com</strong></em>
                 </div>
             </div>
 
@@ -627,17 +708,17 @@
         <!-- INPUT -->
         <div class="input-area">
             <input
-            type="text"
-            id="userInput"
-            placeholder="Ask me anything..."
-            autocomplete="off"
+                type="text"
+                id="userInput"
+                placeholder="Ask me anything..."
+                autocomplete="off"
             />
             <button id="sendButton">→</button>
         </div>
 
         <!-- FOOTER -->
         <div class="footer">
-            <span>✦ trAIlblazer v2.0 · Puter.js · GPT-4o</span>
+            <span>✦ trAIlblazer v2.0 · DeepSeek API</span>
         </div>
 
     </div>
@@ -653,6 +734,13 @@
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         const typingIndicator = document.getElementById('typingIndicator');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const apiStatus = document.getElementById('apiStatus');
+
+        // ============================================================
+        // DEEPSEEK API CONFIG
+        // ============================================================
+        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
         // ============================================================
         // HELPERS
@@ -672,14 +760,12 @@
             messageDiv.appendChild(sender);
             messageDiv.appendChild(contentDiv);
 
-            // Remove old typing indicator
             const oldIndicator = document.getElementById('typingIndicator');
             if (oldIndicator) oldIndicator.remove();
 
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            // Re-add typing indicator for AI responses
             if (type === 'user') {
                 const newIndicator = document.createElement('div');
                 newIndicator.className = 'typing-indicator active';
@@ -707,34 +793,84 @@
             if (el) el.classList.remove('active');
         }
 
+        function updateApiStatus(valid) {
+            if (valid) {
+                apiStatus.textContent = '✅ Connected';
+                apiStatus.className = 'status active';
+            } else {
+                apiStatus.textContent = '⚠️ Not set';
+                apiStatus.className = 'status';
+            }
+        }
+
         // ============================================================
-        // GENERATE AI RESPONSE USING PUTER.JS
+        // GENERATE AI RESPONSE USING DEEPSEEK API
         // ============================================================
         async function generateAIResponse(userMessage) {
+            const apiKey = apiKeyInput.value.trim();
+
+            if (!apiKey) {
+                hideTyping();
+                return `⚠️ Please enter your DeepSeek API key in the field above.<br><br>
+                        <em>Get your free API key at <strong>platform.deepseek.com</strong></em>`;
+            }
+
             showTyping();
 
             try {
-                // Use Puter.js to get a natural, human-like response
-                const response = await puter.ai.chat(userMessage, { model: "gpt-4o" });
+                const response = await fetch(DEEPSEEK_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'You are trAIlblazer, a helpful AI assistant. You provide thoughtful, detailed, and accurate responses. You are friendly and conversational.'
+                            },
+                            {
+                                role: 'user',
+                                content: userMessage
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 2000,
+                        stream: false
+                    })
+                });
 
-                // Format the response with better readability
-                let formattedResponse = response;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+                }
 
-                // Convert plain text to HTML with proper line breaks
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+
+                // Format the response
+                let formattedResponse = aiResponse;
                 formattedResponse = formattedResponse.replace(/\n/g, '<br>');
-
-                // Make lists look better
                 formattedResponse = formattedResponse.replace(/- /g, '• ');
-
-                // Make bold text stand out
                 formattedResponse = formattedResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
                 hideTyping();
                 return formattedResponse;
+
             } catch (error) {
-                console.error('AI error:', error);
+                console.error('DeepSeek API error:', error);
                 hideTyping();
-                return `I encountered an error: ${error.message}. Please try again. If the issue persists, try refreshing the page.`;
+
+                if (error.message.includes('401')) {
+                    return `❌ Invalid API key. Please check your DeepSeek API key and try again.<br><br>
+                            <em>Get your free API key at <strong>platform.deepseek.com</strong></em>`;
+                } else if (error.message.includes('429')) {
+                    return `⏳ Rate limit exceeded. Please wait a moment and try again.`;
+                } else {
+                    return `I encountered an error: ${error.message}. Please try again.`;
+                }
             }
         }
 
@@ -757,6 +893,27 @@
         }
 
         // ============================================================
+        // API KEY VALIDATION (simple check)
+        // ============================================================
+        apiKeyInput.addEventListener('input', () => {
+            const key = apiKeyInput.value.trim();
+            if (key.length > 10) {
+                updateApiStatus(true);
+                // Save to localStorage
+                localStorage.setItem('deepseek_api_key', key);
+            } else {
+                updateApiStatus(false);
+            }
+        });
+
+        // Load saved API key from localStorage
+        const savedKey = localStorage.getItem('deepseek_api_key');
+        if (savedKey) {
+            apiKeyInput.value = savedKey;
+            updateApiStatus(true);
+        }
+
+        // ============================================================
         // EVENTS
         // ============================================================
         sendButton.addEventListener('click', handleSend);
@@ -769,8 +926,8 @@
 
         userInput.focus();
 
-        console.log('✨ trAIlblazer ready! Powered by Puter.js + GPT-4o');
-        console.log('🔮 Ask me anything!');
+        console.log('✨ trAIlblazer ready! Powered by DeepSeek API');
+        console.log('🔑 Enter your API key at platform.deepseek.com');
     </script>
 
 </body>
