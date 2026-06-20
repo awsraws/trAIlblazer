@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>trAIlblazer - AI Assistant</title>
+
+    <!-- SF Pro Font -->
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/sf-pro-display" />
+
+    <!-- Puter.js - Free AI API (GPT-4o, Claude, Gemini, etc.) -->
+    <script src="https://js.puter.com/v2/"></script>
+
+    <style>
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ============================================================
+           3D LIQUID GLASS BACKGROUND
+           ============================================================ */
+        .glass-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(0, 122, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(88, 86, 214, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(0, 122, 255, 0.04) 0%, transparent 50%),
+                #0a0a0f;
+            overflow: hidden;
+        }
+
+        /* 3D Liquid Glass Orb - Main */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: orbFloat 20s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            right: -100px;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 122, 255, 0.3), rgba(88, 86, 214, 0.1));
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            left: -100px;
+            background: radial-gradient(circle at 70% 70%, rgba(88, 86, 214, 0.25), rgba(0, 122, 255, 0.05));
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at 50% 50%, rgba(0, 122, 255, 0.08), transparent);
+            animation-delay: -10s;
+            filter: blur(120px);
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -40px) scale(1.05);
+            }
+            66% {
+                transform: translate(-20px, 30px) scale(0.95);
+            }
+            100% {
+                transform: translate(15px, -15px) scale(1.02);
+            }
+        }
+
+        /* ============================================================
+           MAIN CONTAINER - 3D LIQUID GLASS CARD
+           ============================================================ */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 880px;
+            padding: 40px;
+            border-radius: 48px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(40px) saturate(1.8);
+            -webkit-backdrop-filter: blur(40px) saturate(1.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.02),
+                0 0 120px rgba(0, 122, 255, 0.04);
+            transform: perspective(1200px) rotateX(2deg) rotateY(-0.5deg);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
+        }
+
+        .container:hover {
+            transform: perspective(1200px) rotateX(0.5deg) rotateY(0.5deg) scale(1.002);
+            box-shadow: 
+                0 40px 100px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12),
+                0 0 150px rgba(0, 122, 255, 0.06);
+        }
+
+        /* 3D Liquid Glass Shine / Reflection */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 30%,
+                transparent 70%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+            pointer-events: none;
+            z-index: 0;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            padding: 2px;
+        }
+
+        /* Liquid Glass - Top Bevel Highlight */
+        .container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            border-radius: 50%;
+            filter: blur(1px);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           HEADER
+           ============================================================ */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #8888aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(255, 255, 255, 0.05);
+            display: inline-block;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(0, 122, 255, 0.2);
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 80px;
+            background: radial-gradient(ellipse, rgba(0, 122, 255, 0.08), transparent 70%);
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.5px;
+            font-weight: 300;
+        }
+
+        /* ============================================================
+           CHAT CONTAINER
+           ============================================================ */
+        .chat-container {
+            position: relative;
+            z-index: 1;
+            max-height: 460px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 6px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+        }
+
+        /* ============================================================
+           MESSAGES - 3D LIQUID GLASS BUBBLES
+           ============================================================ */
+        .message {
+            margin-bottom: 14px;
+            padding: 16px 22px;
+            border-radius: 24px;
+            max-width: 88%;
+            animation: messageIn 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transform: perspective(800px) rotateX(0deg);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            will-change: transform;
+        }
+
+        .message:hover {
+            transform: perspective(800px) rotateX(1deg) scale(1.005);
+        }
+
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* User Message - 3D Glass */
+        .message.user {
+            background: rgba(0, 122, 255, 0.10);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border: 1px solid rgba(0, 122, 255, 0.12);
+            margin-left: auto;
+            border-bottom-right-radius: 6px;
+            box-shadow: 
+                0 8px 32px rgba(0, 122, 255, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            transform: perspective(800px) rotateY(-1deg);
+        }
+
+        .message.user::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 122, 255, 0.10);
+            border-radius: 0 0 50% 50%;
+            filter: blur(4px);
+            opacity: 0.3;
+        }
+
+        /* AI Message - 3D Glass */
+        .message.ai {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin-right: auto;
+            border-bottom-left-radius: 6px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            transform: perspective(800px) rotateY(1deg);
+        }
+
+        .message.ai::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0 0 50% 50%;
+            filter: blur(4px);
+            opacity: 0.2;
+        }
+
+        .message .sender {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 4px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .message .content {
+            font-size: 15px;
+            line-height: 1.7;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .message .content strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .message .content em {
+            color: rgba(255, 255, 255, 0.4);
+            font-style: italic;
+        }
+
+        .message .content ul, 
+        .message .content ol {
+            margin: 8px 0 8px 20px;
+        }
+
+        .message .content li {
+            margin-bottom: 4px;
+        }
+
+        /* ============================================================
+           TYPING INDICATOR - 3D GLASS
+           ============================================================ */
+        .typing-indicator {
+            display: none;
+            padding: 14px 22px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            margin-right: auto;
+            max-width: 80px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            transform: perspective(800px) rotateY(1deg);
+        }
+
+        .typing-indicator.active {
+            display: block;
+            animation: messageIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%,
+            80%,
+            100% {
+                transform: scale(0.8);
+                opacity: 0.2;
+            }
+            40% {
+                transform: scale(1.3);
+                opacity: 0.8;
+            }
+        }
+
+        /* ============================================================
+           INPUT AREA - 3D GLASS
+           ============================================================ */
+        .input-area {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 16px 22px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            color: #ffffff;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-area input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 300;
+        }
+
+        .input-area input:focus {
+            border-color: rgba(0, 122, 255, 0.2);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 
+                inset 0 2px 8px rgba(0, 0, 0, 0.2),
+                0 0 40px rgba(0, 122, 255, 0.04);
+            transform: scale(1.002);
+        }
+
+        .input-area button {
+            padding: 16px 36px;
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.15), rgba(88, 86, 214, 0.15));
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border: 1px solid rgba(0, 122, 255, 0.12);
+            border-radius: 20px;
+            color: white;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            white-space: nowrap;
+            box-shadow: 
+                0 4px 24px rgba(0, 122, 255, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.3px;
+        }
+
+        .input-area button:hover {
+            transform: scale(1.03) perspective(600px) rotateX(1deg);
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.25), rgba(88, 86, 214, 0.25));
+            border-color: rgba(0, 122, 255, 0.2);
+            box-shadow: 
+                0 8px 40px rgba(0, 122, 255, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .input-area button:active {
+            transform: scale(0.97);
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.08);
+            font-weight: 300;
+            letter-spacing: 0.8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px;
+                border-radius: 32px;
+                transform: none !important;
+            }
+            .container:hover {
+                transform: none !important;
+            }
+
+            .logo {
+                font-size: 36px;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+            .input-area button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .message {
+                max-width: 94%;
+                padding: 14px 18px;
+            }
+
+            .orb-1 {
+                width: 300px;
+                height: 300px;
+                top: -100px;
+                right: -50px;
+            }
+            .orb-2 {
+                width: 250px;
+                height: 250px;
+                bottom: -80px;
+                left: -50px;
+            }
+            .orb-3 {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    3D LIQUID GLASS BACKGROUND
+    ============================================================ -->
+    <div class="glass-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- ============================================================
+    MAIN CONTAINER
+    ============================================================ -->
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo">
+                tr<span>AI</span>lblazer
+                <div class="logo-glow"></div>
+            </div>
+            <div class="subtitle">Your AI Assistant · Powered by GPT-4o</div>
+        </div>
+
+        <!-- CHAT -->
+        <div class="chat-container" id="chatContainer">
+            <!-- Welcome Message -->
+            <div class="message ai">
+                <div class="sender">trAIlblazer</div>
+                <div class="content">
+                    <strong>👋 Hello! I'm trAIlblazer.</strong><br /><br />
+                    I'm an AI assistant that can help you with anything.<br />
+                    Ask me about science, history, technology, art, philosophy, or whatever you're curious about!<br /><br />
+                    <em>I use GPT-4o to give you thoughtful, human-like responses.</em>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="input-area">
+            <input
+            type="text"
+            id="userInput"
+            placeholder="Ask me anything..."
+            autocomplete="off"
+            />
+            <button id="sendButton">→</button>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <span>✦ trAIlblazer v2.0 · Puter.js · GPT-4o</span>
+        </div>
+
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
+    <script>
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // ============================================================
+        // HELPERS
+        // ============================================================
+        function addMessage(type, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            const sender = document.createElement('div');
+            sender.className = 'sender';
+            sender.textContent = type === 'user' ? 'You' : 'trAIlblazer';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'content';
+            contentDiv.innerHTML = content;
+
+            messageDiv.appendChild(sender);
+            messageDiv.appendChild(contentDiv);
+
+            // Remove old typing indicator
+            const oldIndicator = document.getElementById('typingIndicator');
+            if (oldIndicator) oldIndicator.remove();
+
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Re-add typing indicator for AI responses
+            if (type === 'user') {
+                const newIndicator = document.createElement('div');
+                newIndicator.className = 'typing-indicator active';
+                newIndicator.id = 'typingIndicator';
+                newIndicator.innerHTML = `
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                `;
+                chatContainer.appendChild(newIndicator);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        function showTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.classList.add('active');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.classList.remove('active');
+        }
+
+        // ============================================================
+        // GENERATE AI RESPONSE USING PUTER.JS
+        // ============================================================
+        async function generateAIResponse(userMessage) {
+            showTyping();
+
+            try {
+                // Use Puter.js to get a natural, human-like response
+                const response = await puter.ai.chat(userMessage, { model: "gpt-4o" });
+
+                // Format the response with better readability
+                let formattedResponse = response;
+
+                // Convert plain text to HTML with proper line breaks
+                formattedResponse = formattedResponse.replace(/\n/g, '<br>');
+
+                // Make lists look better
+                formattedResponse = formattedResponse.replace(/- /g, '• ');
+
+                // Make bold text stand out
+                formattedResponse = formattedResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+                hideTyping();
+                return formattedResponse;
+            } catch (error) {
+                console.error('AI error:', error);
+                hideTyping();
+                return `I encountered an error: ${error.message}. Please try again. If the issue persists, try refreshing the page.`;
+            }
+        }
+
+        // ============================================================
+        // HANDLE SEND
+        // ============================================================
+        async function handleSend() {
+            const msg = userInput.value.trim();
+            if (!msg) return;
+
+            userInput.value = '';
+            addMessage('user', msg);
+
+            const aiResponse = await generateAIResponse(msg);
+
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+
+            addMessage('ai', aiResponse);
+        }
+
+        // ============================================================
+        // EVENTS
+        // ============================================================
+        sendButton.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        userInput.focus();
+
+        console.log('✨ trAIlblazer ready! Powered by Puter.js + GPT-4o');
+        console.log('🔮 Ask me anything!');
+    </script>
+
+</body>
+</html>
